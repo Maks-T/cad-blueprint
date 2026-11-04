@@ -1,0 +1,32 @@
+{
+  "name": "cad-blueprint",
+  "version": "0.1.0",
+  "description": "Lightweight parametric 2D/3D CAD blueprint engine with AutoCAD-like layers, blocks, SVG and DXF export",
+  "author": "Maxim Tsatsura",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Maks-T/cad-blueprint.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./svg": {
+      "types": "./src/svg-renderer.ts",
+      "default": "./src/svg-renderer.ts"
+    },
+    "./dxf": {
+      "types": "./src/dxf-renderer.ts",
+      "default": "./src/dxf-renderer.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}
