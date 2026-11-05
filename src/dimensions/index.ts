@@ -1,0 +1,52 @@
+export { CadDimensionError } from './errors';
+export { DIMENSION_TYPES } from './types';
+export type {
+  DimAlignedEntity,
+  DimAlignedInit,
+  DimAngularEntity,
+  DimAngularInit,
+  DimBaselineEntity,
+  DimBaselineInit,
+  DimChainEntity,
+  DimChainInit,
+  DimDiameterEntity,
+  DimDiameterInit,
+  DimensionEntity,
+  DimensionType,
+  DimLinearEntity,
+  DimLinearInit,
+  DimPlacementInit,
+  DimRadiusEntity,
+  DimRadiusInit,
+  LeaderEntity,
+  LeaderInit,
+} from './types';
+export {
+  buildDimAligned,
+  buildDimAngular,
+  buildDimBaseline,
+  buildDimChain,
+  buildDimDiameter,
+  buildDimLinear,
+  buildDimRadius,
+  buildLeader,
+  dimAligned,
+  dimAngular,
+  dimBaseline,
+  dimChain,
+  dimDiameter,
+  dimLinear,
+  dimRadius,
+  leader,
+} from './build';
+export { buildDimensionGeometry } from './geometry';
+export type {
+  DimensionContext,
+  DimensionGeometry,
+  DimGeometryArc,
+  DimGeometryCurve,
+  DimGeometryLine,
+  DimGeometryTerminator,
+  DimGeometryText,
+  DimLineRole,
+} from './geometry';

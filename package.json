@@ -1,0 +1,126 @@
+{
+  "name": "cad-blueprint",
+  "version": "0.2.0",
+  "description": "Lightweight parametric 2D CAD blueprint engine: layers, text and dimension styles, primitives, dimensions, blocks, viewports, compact JSON / .vcad, SVG and DXF export, DXF import, interactive viewer and Three.js bridge",
+  "author": "Maxim Tsatsura",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Maks-T/cad-blueprint.git"
+  },
+  "homepage": "https://github.com/Maks-T/cad-blueprint#readme",
+  "bugs": "https://github.com/Maks-T/cad-blueprint/issues",
+  "keywords": [
+    "cad",
+    "blueprint",
+    "drawing",
+    "svg",
+    "dxf",
+    "parametric",
+    "dimensions",
+    "gost",
+    "configurator",
+    "three"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./svg": {
+      "types": "./src/svg/index.ts",
+      "default": "./src/svg/index.ts"
+    },
+    "./dxf": {
+      "types": "./src/dxf/index.ts",
+      "default": "./src/dxf/index.ts"
+    },
+    "./format": {
+      "types": "./src/format/index.ts",
+      "default": "./src/format/index.ts"
+    },
+    "./viewer": {
+      "types": "./src/viewer/index.ts",
+      "default": "./src/viewer/index.ts"
+    },
+    "./three": {
+      "types": "./src/three/index.ts",
+      "default": "./src/three/index.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./svg": {
+        "types": "./dist/svg.d.ts",
+        "default": "./dist/svg.js"
+      },
+      "./dxf": {
+        "types": "./dist/dxf.d.ts",
+        "default": "./dist/dxf.js"
+      },
+      "./format": {
+        "types": "./dist/format.d.ts",
+        "default": "./dist/format.js"
+      },
+      "./viewer": {
+        "types": "./dist/viewer.d.ts",
+        "default": "./dist/viewer.js"
+      },
+      "./three": {
+        "types": "./dist/three.d.ts",
+        "default": "./dist/three.js"
+      },
+      "./iife": "./dist/cad-blueprint.iife.js",
+      "./package.json": "./package.json"
+    },
+    "types": "./dist/index.d.ts",
+    "module": "./dist/index.js"
+  },
+  "unpkg": "./dist/cad-blueprint.iife.js",
+  "jsdelivr": "./dist/cad-blueprint.iife.js",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p src/viewer/tsconfig.json && tsc --noEmit -p demo/tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "tsup",
+    "demo": "vite --config demo/vite.config.ts",
+    "demo:build": "vite build --config demo/vite.config.ts",
+    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
+  },
+  "dependencies": {
+    "fflate": "^0.8.2"
+  },
+  "peerDependencies": {
+    "three": ">=0.150.0"
+  },
+  "peerDependenciesMeta": {
+    "three": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/three": "^0.170.0",
+    "happy-dom": "^21.0.0",
+    "three": "^0.170.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.6.3",
+    "vite": "^8.0.0",
+    "vitest": "^3.0.0"
+  }
+}
