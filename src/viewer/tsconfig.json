@@ -1,0 +1,9 @@
+{
+  // Вьюпорту нужен DOM; ядро (корневой tsconfig.json) собирается без DOM-типов.
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
+  "include": ["./**/*.ts", "../../tests/viewer.test.ts"],
+  "exclude": []
+}

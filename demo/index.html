@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect x=%221%22 y=%221%22 width=%2214%22 height=%2214%22 rx=%223%22 fill=%22%2318181b%22/%3E%3Cpath d=%22M4 11h8M4 11V5%22 stroke=%22%23fff%22 stroke-width=%221.5%22/%3E%3C/svg%3E" />
+    <title>cad-blueprint · демо</title>
+    <style>
+      :root {
+        --bg: #f4f4f5;
+        --card: #fff;
+        --text: #09090b;
+        --muted: #71717a;
+        --border: #e4e4e7;
+        --primary: #18181b;
+        --accent: #2563eb;
+        --danger: #dc2626;
+        --radius: 8px;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        font: 13px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        color: var(--text);
+        background: var(--bg);
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        overflow: hidden;
+      }
+      header {
+        display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+        padding: 8px 16px; background: var(--card); border-bottom: 1px solid var(--border);
+      }
+      .brand { font-weight: 700; font-size: 15px; }
+      .brand small { font-weight: 400; color: var(--muted); margin-left: 6px; }
+      .brand a { font-weight: 500; font-size: 13px; color: var(--accent); margin-left: 12px; text-decoration: none; }
+      .actions { margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+      .sep { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+      button, .file-btn {
+        font: inherit; height: 30px; padding: 0 10px; border-radius: 6px; cursor: pointer;
+        border: 1px solid var(--border); background: var(--card); color: var(--text);
+        display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+      }
+      button:hover, .file-btn:hover { background: #f4f4f5; }
+      button.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+      button.primary:hover { background: #27272a; }
+      .file-btn input { display: none; }
+      #zoom-label { min-width: 48px; text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; }
+      nav#sheet-tabs {
+        display: flex; gap: 4px; padding: 6px 16px; overflow-x: auto;
+        background: var(--card); border-bottom: 1px solid var(--border);
+      }
+      .tab-btn { border-color: transparent; color: var(--muted); }
+      .tab-btn.active { background: var(--bg); color: var(--text); border-color: var(--border); font-weight: 600; }
+      main {
+        display: grid; grid-template-columns: 280px minmax(0, 1fr) 360px;
+        gap: 12px; padding: 12px; min-height: 0;
+      }
+      aside { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; min-height: 0; }
+      .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; }
+      .card h3 {
+        margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted);
+        display: flex; justify-content: space-between; align-items: center;
+      }
+      .link-btn { height: auto; padding: 0; border: 0; background: none; color: var(--accent); font-size: 11px; text-transform: none; letter-spacing: 0; }
+      .link-btn:hover { background: none; text-decoration: underline; }
+      .layer-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; cursor: pointer; }
+      .layer-row .link-btn { margin-left: auto; visibility: hidden; }
+      .layer-row:hover .link-btn { visibility: visible; }
+      .layer-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; border: 1px solid rgb(0 0 0 / .15); }
+      .layer-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .field { display: grid; gap: 4px; margin-bottom: 10px; }
+      .field:last-child { margin-bottom: 0; }
+      .field label { color: var(--muted); display: flex; justify-content: space-between; }
+      .field label b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+      select { font: inherit; height: 30px; border: 1px solid var(--border); border-radius: 6px; padding: 0 6px; background: var(--card); }
+      input[type='range'] { width: 100%; accent-color: var(--accent); }
+      .center { display: grid; grid-template-rows: 1fr auto; min-height: 0; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+      #viewer-host {
+        min-height: 0; position: relative;
+        background-color: #fafafa;
+        background-image: radial-gradient(#d4d4d8 1px, transparent 1px);
+        background-size: 16px 16px;
+      }
+      #viewer-host .cad-paper { filter: drop-shadow(0 1px 3px rgb(0 0 0 / .12)); }
+      .statusbar {
+        display: flex; justify-content: space-between; gap: 12px; padding: 6px 12px;
+        border-top: 1px solid var(--border); color: var(--muted); font-size: 12px;
+      }
+      #status-select { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      #status-select.error { color: var(--danger); }
+      #status-audit { white-space: nowrap; cursor: help; }
+      #three-preview { height: 280px; border-radius: 6px; overflow: hidden; background: #f8fafc; position: relative; color: var(--muted); }
+      .hint { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
+      .hint b { color: #dc2626; }
+      .stats { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; }
+      .stats span:nth-child(even) { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+      #size-ratio { grid-column: 1 / -1; text-align: left !important; color: #16a34a; font-weight: 500 !important; }
+      pre#json-preview {
+        margin: 0; max-height: 220px; overflow: auto; font: 11px/1.5 ui-monospace, Menlo, Consolas, monospace;
+        background: #fafafa; border: 1px solid var(--border); border-radius: 6px; padding: 8px;
+        white-space: pre-wrap; word-break: break-all;
+      }
+      @media (max-width: 1200px) {
+        body { overflow: auto; grid-template-rows: auto auto auto; }
+        main { grid-template-columns: 1fr; }
+        .center { height: 70vh; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">cad-blueprint <small>v0.2 · демо</small><a href="./docs.html">Документация →</a></div>
+      <div class="actions">
+        <button id="btn-fit" title="Вписать в окно">⤢</button>
+        <button id="btn-zoom-out" title="Отдалить">−</button>
+        <span id="zoom-label">100%</span>
+        <button id="btn-zoom-in" title="Приблизить">+</button>
+        <span class="sep"></span>
+        <label class="file-btn" title="Открыть DXF как новый лист">Импорт DXF<input id="input-dxf" type="file" accept=".dxf" /></label>
+        <span class="sep"></span>
+        <button id="btn-svg">SVG</button>
+        <button id="btn-dxf" class="primary">DXF</button>
+        <button id="btn-dxf-2000" title="DXF R2000 для старых программ">DXF R2000</button>
+        <button id="btn-vcad" title="Весь документ: JSON + манифест в zip">.vcad</button>
+      </div>
+    </header>
+    <nav id="sheet-tabs"></nav>
+    <main>
+      <aside>
+        <section class="card">
+          <h3>Слои <button id="btn-show-all-layers" class="link-btn">показать все</button></h3>
+          <div id="layer-list"></div>
+        </section>
+        <section class="card">
+          <h3>Стиль размеров</h3>
+          <div class="field">
+            <label for="sel-terminator">Засечки</label>
+            <select id="sel-terminator">
+              <option value="arrow-closed">Стрелка (закрытая)</option>
+              <option value="arrow-open">Стрелка (открытая)</option>
+              <option value="tick">Засечка 45° (ГОСТ)</option>
+              <option value="dot">Точка</option>
+              <option value="circle">Кружок</option>
+              <option value="none">Нет</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="sel-text-pos">Положение текста</label>
+            <select id="sel-text-pos">
+              <option value="above">Над линией</option>
+              <option value="centered">В разрыве линии</option>
+              <option value="outside">Снаружи</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="sel-text-orient">Ориентация текста</label>
+            <select id="sel-text-orient">
+              <option value="aligned">Вдоль линии</option>
+              <option value="horizontal">Горизонтально</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="sel-scale">Масштаб чертежа</label>
+            <select id="sel-scale">
+              <option value="1:1">1:1</option>
+              <option value="1:2">1:2</option>
+              <option value="1:5">1:5</option>
+              <option value="1:10">1:10</option>
+              <option value="1:20">1:20</option>
+            </select>
+          </div>
+        </section>
+        <section class="card">
+          <h3>Параметрика</h3>
+          <div class="field">
+            <label for="rng-w">Ширина <b><span id="rng-w-val">1200</span> мм</b></label>
+            <input id="rng-w" type="range" min="500" max="2400" step="10" value="1200" />
+          </div>
+          <div class="field">
+            <label for="rng-h">Глубина <b><span id="rng-h-val">600</span> мм</b></label>
+            <input id="rng-h" type="range" min="300" max="1200" step="10" value="600" />
+          </div>
+          <div class="field">
+            <label for="rng-r">Радиус углов <b><span id="rng-r-val">40</span> мм</b></label>
+            <input id="rng-r" type="range" min="0" max="140" step="1" value="40" />
+          </div>
+          <div class="field">
+            <label for="rng-cut">Разрез по Z <b><span id="rng-cut-val">180</span> мм</b></label>
+            <input id="rng-cut" type="range" min="0" max="400" step="1" value="180" />
+          </div>
+        </section>
+      </aside>
+
+      <div class="center">
+        <div id="viewer-host"></div>
+        <div class="statusbar">
+          <span id="status-select">Колесо — зум, перетаскивание — панорама, двойной клик — вписать, клик — выбор объекта</span>
+          <span id="status-audit"></span>
+        </div>
+      </div>
+
+      <aside>
+        <section class="card">
+          <h3>3D и сечение</h3>
+          <div id="three-preview"></div>
+          <p class="hint">Тяни <b>красную плоскость</b> мышью, чтобы двигать разрез. Остальное вращает камеру, колесо — зум.</p>
+        </section>
+        <section class="card">
+          <h3>Размер документа</h3>
+          <div class="stats">
+            <span>JSON (подробный)</span><span id="size-verbose">—</span>
+            <span>Компактный JSON</span><span id="size-compact">—</span>
+            <span>.vcad (zip)</span><span id="size-vcad">—</span>
+            <span id="size-ratio"></span>
+          </div>
+        </section>
+        <section class="card">
+          <h3>Компактный JSON листа</h3>
+          <pre id="json-preview"></pre>
+        </section>
+      </aside>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
