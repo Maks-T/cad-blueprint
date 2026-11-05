@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect x=%221%22 y=%221%22 width=%2214%22 height=%2214%22 rx=%223%22 fill=%22%2318181b%22/%3E%3Cpath d=%22M4 11h8M4 11V5%22 stroke=%22%23fff%22 stroke-width=%221.5%22/%3E%3C/svg%3E" />
+    <title>cad-blueprint · документация</title>
+    <style>:root{--bg:#fafafa;--card:#fff;--text:#09090b;--muted:#71717a;--border:#e4e4e7;--accent:#2563eb;--code-bg:#18181b;--code-text:#e4e4e7}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:16px}body{color:var(--text);background:var(--bg);margin:0;font:15px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}.layout{grid-template-columns:240px minmax(0,860px);gap:48px;max-width:1180px;margin:0 auto;padding:32px 24px 96px;display:grid}nav{align-self:start;font-size:14px;position:sticky;top:24px}nav .brand{margin-bottom:4px;font-size:17px;font-weight:700}nav .brand small{color:var(--muted);font-weight:400}nav a{color:var(--muted);padding:3px 0;text-decoration:none;display:block}nav a:hover{color:var(--text)}nav .demo-link{background:var(--text);color:#fff;border-radius:6px;margin:12px 0 20px;padding:6px 12px;display:inline-block}nav .demo-link:hover{color:#fff;background:#27272a}h1{margin:0 0 8px;font-size:32px;line-height:1.2}h2{border-top:1px solid var(--border);margin:48px 0 12px;padding-top:8px;font-size:22px}h3{margin:24px 0 8px;font-size:16px}p,ul,table{margin:0 0 12px}.lead{color:var(--muted);font-size:17px}a{color:var(--accent)}code{border:1px solid var(--border);background:#f4f4f5;border-radius:4px;padding:1px 4px;font:13px ui-monospace,Menlo,Consolas,monospace}pre{background:var(--code-bg);color:var(--code-text);border-radius:8px;margin:0 0 16px;padding:14px 16px;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace;overflow-x:auto}pre code{color:inherit;background:0 0;border:0;padding:0}pre .c{color:#71717a}table{border-collapse:collapse;background:var(--card);width:100%;font-size:14px}th,td{border:1px solid var(--border);text-align:left;vertical-align:top;padding:6px 10px}th{background:#f4f4f5;font-weight:600}.note{border-left:3px solid var(--accent);background:#eff6ff;border-radius:0 6px 6px 0;margin:0 0 16px;padding:10px 14px;font-size:14px}@media (width<=900px){.layout{grid-template-columns:1fr;gap:16px}nav{position:static}}</style>
+  </head>
+  <body>
+    <div class="layout">
+      <nav>
+        <div class="brand">cad-blueprint <small>v0.2</small></div>
+        <a class="demo-link" href="./index.html">← Открыть демо</a>
+        <a href="#install">Установка</a>
+        <a href="#quick">Быстрый старт</a>
+        <a href="#axes">Оси, углы, единицы</a>
+        <a href="#layers">Слои и стили</a>
+        <a href="#primitives">Примитивы и CadPath</a>
+        <a href="#dims">Размеры и выноски</a>
+        <a href="#blocks">Блоки и видовые экраны</a>
+        <a href="#document">Документ и листы</a>
+        <a href="#formats">JSON и .vcad</a>
+        <a href="#svg">SVG</a>
+        <a href="#dxf">DXF: экспорт и импорт</a>
+        <a href="#viewer">Вьюпорт</a>
+        <a href="#filament">Без сборщика (IIFE)</a>
+        <a href="#three">Three.js: 3D и разрезы</a>
+      </nav>
+
+      <main>
+        <h1>cad-blueprint</h1>
+        <p class="lead">
+          Лёгкий параметрический 2D-движок чертежей для конфигураторов: слои со штриховками, стили текста и размеров по ГОСТ,
+          примитивы, размеры, блоки, видовые экраны. Экспорт в SVG и DXF, импорт DXF, компактный JSON для БД, просмотрщик
+          с зумом и мост к Three.js.
+        </p>
+
+        <h2 id="install">Установка</h2>
+        <pre><code>pnpm add cad-blueprint
+pnpm add three   <span class="c"># только если нужен cad-blueprint/three</span></code></pre>
+        <table>
+          <tr><th>Точка входа</th><th>Что внутри</th></tr>
+          <tr><td><code>cad-blueprint</code></td><td>ядро: настройки, слои, стили, примитивы, размеры, блоки, документ, SVG, DXF, форматы. Без DOM.</td></tr>
+          <tr><td><code>cad-blueprint/svg</code>, <code>/dxf</code>, <code>/format</code></td><td>отдельные модули для лёгких бандлов</td></tr>
+          <tr><td><code>cad-blueprint/viewer</code></td><td><code>CadViewer</code>: просмотр с зумом, панорамой, слоями (нужен DOM)</td></tr>
+          <tr><td><code>cad-blueprint/three</code></td><td>контуры → <code>THREE.Shape</code> / <code>ExtrudeGeometry</code>, сечения мешей</td></tr>
+          <tr><td><code>cad-blueprint/iife</code></td><td>сборка для <code>&lt;script&gt;</code>: <code>window.CadBlueprint</code></td></tr>
+        </table>
+
+        <h2 id="quick">Быстрый старт</h2>
+        <pre><code>import { CadDocument, CadPath, polygon, insert, dimLinear, dimChain, renderSvg, exportDxf, stringifyDocument } from 'cad-blueprint';
+
+const doc = new CadDocument({ gost: true, settings: { scale: '1:10' } }); <span class="c">// шрифт, текст и размеры по ГОСТ</span>
+doc.layers.create('Контур', { color: '#0f172a', lineWeight: 0.5 });
+doc.layers.create('Размеры', { color: '#047857', lineWeight: 0.18 });
+
+const tread = CadPath.start(0, 0).right(300).up(40).left(300).close().filletAll(5).build();
+doc.blocks.define('Ступень', [polygon(tread, { layer: 'Контур' })]);
+
+doc.addSheet('Лестница', [
+  ...[0, 1, 2, 3].map((i) =&gt; insert('Ступень', [i * 280, i * 170])),
+  dimChain([[0, 0], [280, 0], [560, 0], [840, 0]], { offset: -120, layer: 'Размеры' }),
+]);
+
+const svg = renderSvg(doc);           <span class="c">// строка &lt;svg&gt;, размеры в мм бумаги</span>
+const dxf = exportDxf(doc);           <span class="c">// DXF R2007, UTF-8</span>
+const json = stringifyDocument(doc);  <span class="c">// компактный JSON для БД</span></code></pre>
+
+        <h2 id="axes">Оси, углы, единицы</h2>
+        <ul>
+          <li>Геометрия в единицах модели (<code>settings.units</code>, по умолчанию мм). Ось Y вверх (<code>coordinateSystem: 'cartesian'</code>) или вниз (<code>'screen'</code>).</li>
+          <li>Углы в градусах, против часовой стрелки в числовой плоскости, как в DXF. Это касается дуг, вставок и видовых экранов.</li>
+          <li>Высота текста, стрелки и толщины линий задаются в <b>мм бумаги</b>: при масштабе 1:10 текст 3,5 мм остаётся 3,5 мм на листе.</li>
+          <li>Все объекты неизменяемые (frozen). Изменение означает новый объект: <code>sheet.replace(id, entity)</code>.</li>
+        </ul>
+
+        <h2 id="layers">Слои и стили</h2>
+        <pre><code>doc.layers.create('Сечение', { color: '#1e3a8a', lineWeight: 0.5, hatch: 'steel-45' });
+doc.layers.create('Оси', { color: '#dc2626', lineWeight: 0.18, lineType: 'dashdot' });
+doc.layers.create('Сетка', {
+  hatch: createHatchStyle({ families: [{ angle: 45, spacing: 3 }, { angle: 135, spacing: 3 }], background: '#f0fdfa' }),
+});
+doc.layers.update('Оси', { visible: false });
+
+doc.dimStyles.update('GOST', { terminatorType: 'tick', textPosition: 'above', textOrientation: 'aligned' });</code></pre>
+        <p>
+          Штриховки: <code>steel-45</code>, <code>board-45</code>, <code>concrete</code>, <code>wall-45</code> и свои через
+          <code>createHatchStyle</code>. Объект с <code>fill: 'hatch'</code> берёт штриховку своего слоя. Засечки размеров:
+          <code>arrow-closed</code>, <code>arrow-open</code>, <code>tick</code>, <code>dot</code>, <code>circle</code>, <code>none</code>.
+        </p>
+
+        <h2 id="primitives">Примитивы и CadPath</h2>
+        <pre><code>line([0, 0], [100, 0], { layer: 'Оси' });
+rect(0, 0, 300, 200, { cornerRadius: 20, fill: 'hatch' });
+circle([50, 50], 20);
+arc([0, 0], 70, 20, 240);                  <span class="c">// центр, радиус, начальный и конечный угол</span>
+arcThrough(a, b, c);                      <span class="c">// дуга по трём точкам</span>
+ellipse([0, 0], 110, 65, { rotationDeg: 25 });
+polyline(points); polygon(points, { holes: [hole] });
+spline(points, { degree: 3 }); bezier(controlPoints); fitBezier(throughPoints);
+text([0, 0], 'Подпись', { height: 3.5, anchor: 'middle-left' });
+mtext([0, 0], 'Строка 1\nСтрока 2', { height: 3.5 });
+breakLine(a, b, { waves: 3 }); zigzagBreakLine(a, b);  <span class="c">// линии обрыва ГОСТ 2.303</span></code></pre>
+        <p><code>CadPath</code> строит контуры «черепашкой» со скруглениями и фасками. Результат подходит для <code>polygon</code> и <code>polyline</code>:</p>
+        <pre><code>const profile = CadPath.start(0, 0)
+  .right(80).up(60).left(25).down(18).left(30).up(18).left(25)
+  .close().filletAll(4).build();
+
+CadPath.start(0, 0).right(700).up(120).polar(220, 135).left(200).fillet(40).close().build();
+CadPath.start(0, 0).right(80).arcTo(180, 200, { tangent: true }).build();</code></pre>
+
+        <h2 id="dims">Размеры и выноски</h2>
+        <pre><code>dimLinear(a, b, { offset: -60 });                     <span class="c">// горизонтальный по умолчанию</span>
+dimLinear(a, b, { direction: 'vertical', offset: 40 });
+dimAligned(a, b, { offset: -30 });                    <span class="c">// вдоль отрезка</span>
+dimChain([p0, p1, p2, p3], { offset: -70, texts: [null, '&lt;&gt; (шаг)', null] });
+dimBaseline(p0, [p1, p2, p3], { offset: -150 });
+dimAngular(vertex, a, b, { radius: 110 });
+dimDiameter(center, r, { angleDeg: 35 }); dimRadius(center, r, { angleDeg: -45 });
+leader([[600, 60], [780, 220]], 'Сталь Ст3сп, t = 8 мм');</code></pre>
+        <p><code>&lt;&gt;</code> в тексте подставляет измеренное значение. Если текст не помещается между засечками, он выносится наружу автоматически.</p>
+
+        <h2 id="blocks">Блоки и видовые экраны</h2>
+        <pre><code>doc.blocks.define('Профиль', [polygon(profile, { layer: 'Сечение', fill: 'hatch' })], { description: '80×60' });
+
+insert('Профиль', [1150, 0], { scaleX: -1, rotationDeg: 90, layer: 'Оси' }); <span class="c">// объекты слоя «0» берут слой вставки</span>
+
+viewport([insert('Профиль', [0, 0]), dimLinear([0, 0], [80, 0], { offset: -14 })], {
+  position: [150, -560],   <span class="c">// где экран стоит на листе</span>
+  target: [40, 30],        <span class="c">// какая точка модели в центре</span>
+  scale: '1:2',
+  clip: { minX: -20, minY: -32, maxX: 112, maxY: 72 },
+  frame: true,
+  title: 'Узел А (1:2)',
+});</code></pre>
+        <p>Внутри экрана тексты и стрелки считаются по его масштабу, поэтому на бумаге они такие же, как снаружи.</p>
+
+        <h2 id="document">Документ и листы</h2>
+        <pre><code>const doc = new CadDocument({ gost: true, settings: { scale: '1:20', annotationScale: 'auto', padding: [12, 16] } });
+const sheet = doc.addSheet('Фасад', entities, 'facade'); <span class="c">// имя, объекты, id</span>
+sheet.add(e1, e2); sheet.remove('id'); sheet.replace('id', e); sheet.find('id');
+doc.audit();     <span class="c">// ссылки на несуществующие слои, стили, блоки, шрифты</span>
+doc.context();   <span class="c">// контекст рендера для своих рендереров и габаритов</span>
+entitiesBounds(sheet.entities, doc.context());</code></pre>
+
+        <h2 id="formats">JSON и .vcad</h2>
+        <pre><code>const json = stringifyDocument(doc);   <span class="c">// tuple-JSON, в разы меньше JSON.stringify(doc)</span>
+const copy = decodeDocument(json);     <span class="c">// с полной проверкой</span>
+
+const bytes = packVcad(doc, { assets: { 'fonts/gost.woff2': font }, meta: { order: 42 } }); <span class="c">// zip</span>
+const { document, assets, manifest } = unpackVcad(bytes);
+const lib = unpackBlockLibrary(packBlockLibrary(doc.blocks));</code></pre>
+
+        <h2 id="svg">SVG</h2>
+        <pre><code>renderSvg(doc, { sheet: 'facade', background: '#fff' });    <span class="c">// size: 'paper' | 'none' | { width }</span>
+renderSvg(doc, { hiddenLayers: 'hide' });                    <span class="c">// скрытые слои с display:none</span></code></pre>
+        <p>Блоки выводятся через <code>&lt;symbol&gt;</code>/<code>&lt;use&gt;</code>, штриховки через <code>&lt;pattern&gt;</code>. Текст в зеркальных вставках остаётся читаемым (как MIRRTEXT=0).</p>
+
+        <h2 id="dxf">DXF: экспорт и импорт</h2>
+        <pre><code>exportDxf(doc, { sheet: 'facade' });                  <span class="c">// R2007, UTF-8, true color</span>
+exportDxf(doc, { version: 'R2000' });                 <span class="c">// для старых программ, кириллица как \U+XXXX</span>
+
+const { block, layers, warnings, fileUnits } = importDxf(fileBytes, { name: 'Профиль', fill: 'hatch', basePoint: 'min' });
+for (const l of layers) if (!doc.layers.has(l.name)) doc.layers.create(l.name, l);
+doc.blocks.add(block);
+doc.addSheet('Импорт', [insert('Профиль', [0, 0])]);</code></pre>
+        <div class="note">
+          Размеры в DXF пишутся разложенными (LINE, SOLID, TEXT), видовые экраны блоками <code>_VIEWPORT&lt;n&gt;</code> без обрезки.
+          Импорт: LINE, POINT, CIRCLE, ARC, ELLIPSE, LWPOLYLINE, POLYLINE, SPLINE, SOLID, TEXT, MTEXT, INSERT. Единицы берутся из <code>$INSUNITS</code>,
+          вложенные замкнутые контуры становятся вырезами.
+        </div>
+
+        <h2 id="viewer">Вьюпорт</h2>
+        <pre><code>import { CadViewer } from 'cad-blueprint/viewer';
+
+const viewer = new CadViewer(container, doc, {
+  sheet: 'facade', toolbar: false, background: 'transparent', paper: '#fff', fileName: 'order-42',
+});
+viewer.setSheet('plan');
+viewer.setDocument(newDoc, { keepView: true });    <span class="c">// пересборка без сброса зума</span>
+viewer.setLayerVisible('Оси', false); viewer.isolateLayer('Контур'); viewer.showAllLayers();
+viewer.fitToView(); viewer.zoomIn(); viewer.zoomOut();
+viewer.downloadSvg(); viewer.downloadDxf(); viewer.downloadVcad();
+viewer.on((e) =&gt; {
+  if (e.type === 'select') console.log(e.id, e.layer, e.point);  <span class="c">// клик по объекту с id</span>
+  if (e.type === 'view') console.log(e.zoom);
+});
+viewer.destroy();</code></pre>
+        <p>Колесо зумирует к курсору, перетаскивание двигает вид, двойной клик вписывает. На сенсорных экранах работает щипок. Источником может быть документ, компактный JSON или байты <code>.vcad</code>.</p>
+
+        <h2 id="filament">Без сборщика (IIFE, Filament)</h2>
+        <pre><code>&lt;script src="/js/cad-blueprint.iife.js"&gt;&lt;/script&gt;
+&lt;div id="drawing" style="height: 480px"&gt;&lt;/div&gt;
+&lt;script&gt;
+  CadBlueprint.mountCadViewer(document.getElementById('drawing'), drawingJson, { toolbar: true });
+&lt;/script&gt;</code></pre>
+        <p>В Filament / Alpine: <code>x-init="CadBlueprint.mountCadViewer($el, @js($record-&gt;drawing_json), { toolbar: true })"</code> и <code>wire:ignore</code> на контейнере.</p>
+
+        <h2 id="three">Three.js: 3D и разрезы</h2>
+        <pre><code>import { blockToExtrudeGeometry, sectionObject, sectionToBlock } from 'cad-blueprint/three';
+import { Mesh, Plane, Vector3 } from 'three';
+
+const mesh = new Mesh(blockToExtrudeGeometry(doc.blocks.require('Профиль'), { depth: 400 })); <span class="c">// вырезы → holes</span>
+
+const section = sectionObject(scene, new Plane(new Vector3(0, 0, 1), -180)); <span class="c">// плоскость Z = 180</span>
+doc.blocks.add(sectionToBlock(section, 'Разрез А-А', { layer: 'Сечение', fill: 'hatch' }));
+sheet.add(insert('Разрез А-А', [0, 0]));</code></pre>
+        <p>
+          <code>section.loops</code> содержит замкнутые контуры в координатах плоскости, <code>section.basis</code> задаёт её начало и оси.
+          Для нормали (0, 0, 1) ось X сечения совпадает с X мира, Y с Y мира. В демо красную плоскость можно таскать мышью:
+          при каждом сдвиге сечение пересчитывается и лист «3D-разрез» перестраивается.
+        </p>
+      </main>
+    </div>
+  </body>
+</html>
