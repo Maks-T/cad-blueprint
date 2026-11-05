@@ -101,7 +101,8 @@
     "build": "tsup",
     "demo": "vite --config demo/vite.config.ts",
     "demo:build": "vite build --config demo/vite.config.ts",
-    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
+    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build",
+    "demo:deploy": "vite build --config demo/vite.config.ts && npx gh-pages -d dist-demo"
   },
   "dependencies": {
     "fflate": "^0.8.2"
