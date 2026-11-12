@@ -130,6 +130,7 @@
     }
   },
   "devDependencies": {
+    "@types/node": "^26.6.6",
     "@types/three": "^0.170.0",
     "happy-dom": "^21.0.0",
     "three": "^0.170.0",
