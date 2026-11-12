@@ -3,7 +3,7 @@
   "version": "0.2.1",
   "description": "Lightweight parametric 2D CAD blueprint engine: layers, text and dimension styles, primitives, dimensions, blocks, viewports, compact JSON / .vcad, SVG and DXF export, DXF import, interactive viewer and Three.js bridge",
   "author": "Maxim Tsatsura",
-  "license": "MIT",
+  "license": "MPL-2.0",
   "type": "module",
   "sideEffects": false,
   "repository": {
