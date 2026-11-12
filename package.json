@@ -10,8 +10,10 @@
     "type": "git",
     "url": "https://github.com/Maks-T/cad-blueprint.git"
   },
-  "homepage": "https://github.com/Maks-T/cad-blueprint#readme",
-  "bugs": "https://github.com/Maks-T/cad-blueprint/issues",
+  "homepage": "https://maks-t.github.io/cad-blueprint/",
+  "bugs": {
+    "url": "https://github.com/Maks-T/cad-blueprint/issues"
+  },
   "keywords": [
     "cad",
     "blueprint",
@@ -22,7 +24,18 @@
     "dimensions",
     "gost",
     "configurator",
-    "three"
+    "three",
+    "2d",
+    "2d-cad",
+    "cad-engine",
+    "cad-viewer",
+    "dxf-export",
+    "dxf-import",
+    "svg-export",
+    "technical-drawing",
+    "threejs",
+    "typescript",
+    "vcad"
   ],
   "engines": {
     "node": ">=18"
