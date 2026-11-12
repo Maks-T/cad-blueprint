@@ -4,130 +4,128 @@
 [![license](https://img.shields.io/npm/l/cad-blueprint)](./LICENSE)
 [![demo](https://img.shields.io/badge/demo-online-047857)](https://maks-t.github.io/cad-blueprint/)
 
-**[Демо](https://maks-t.github.io/cad-blueprint/)** · **[Документация](https://maks-t.github.io/cad-blueprint/docs.html)** · **[npm](https://www.npmjs.com/package/cad-blueprint)**
+**English** · [Русский](https://github.com/Maks-T/cad-blueprint/blob/main/README.ru.md)
 
-> Lightweight parametric 2D CAD engine for TypeScript: layers, text and dimension styles, primitives, dimensions,
-> blocks, viewports, SVG and DXF export, DXF import, interactive viewer and Three.js bridge.
-> Works in the browser, Node and web workers. [Live demo →](https://maks-t.github.io/cad-blueprint/)
+**[Demo](https://maks-t.github.io/cad-blueprint/)** · **[Documentation](https://maks-t.github.io/cad-blueprint/docs.html)** · **[npm](https://www.npmjs.com/package/cad-blueprint)**
 
-Лёгкий параметрический 2D CAD-движок для конфигураторов: слои и штриховки, шрифты и текстовые стили (в т. ч. ГОСТ тип Б),
-размерные стили, примитивы, размеры и выноски, блоки и видовые экраны, компактный JSON и контейнер `.vcad`, точные габариты,
-экспорт в SVG и DXF, импорт DXF, интерактивный просмотр (в т. ч. для Filament) и мост к Three.js.
-Ядро не зависит от DOM и работает в браузере, Node и воркерах.
+Lightweight parametric 2D CAD engine for configurators: layers and hatches, fonts and text styles (including GOST type B),
+dimension styles, primitives, dimensions and leaders, blocks and viewports, compact JSON and the `.vcad` container, exact bounds,
+SVG and DXF export, DXF import, an interactive viewer (including for Filament) and a Three.js bridge.
+The core has no DOM dependency and runs in the browser, Node and web workers.
 
-## Демо
+## Demo
 
-**https://maks-t.github.io/cad-blueprint/** — интерактивный пример на этой библиотеке:
+**https://maks-t.github.io/cad-blueprint/** — an interactive example built with this library:
 
-- параметрический чертёж: ширина, глубина, радиус скругления, глубина Z-сечения;
-- размерные стили (засечки, стрелки, засечки 45° по ГОСТ) и положение текста размера;
-- масштабы от 1:1 до 1:20, слои, зум, панорамирование, выделение объектов;
-- импорт DXF / SVG / `.vcad`, экспорт в JSON, компактный JSON и `.vcad`;
-- 3D-вид на Three.js с подвижной секущей плоскостью.
+- parametric drawing: width, depth, corner radius, Z-section depth;
+- dimension styles (ticks, arrows, 45° GOST ticks) and dimension text placement;
+- scales from 1:1 to 1:20, layers, zoom, pan, object selection;
+- DXF / SVG / `.vcad` import, export to JSON, compact JSON and `.vcad`;
+- Three.js 3D view with a movable section plane.
 
-Исходники демо — в [`demo/`](./demo), локальный запуск — `pnpm demo`, публикация на GitHub Pages — `pnpm demo:deploy`.
+Demo sources live in [`demo/`](./demo); run locally with `pnpm demo`, publish to GitHub Pages with `pnpm demo:deploy`.
 
-## Установка
+## Installation
 
 ```bash
-pnpm add cad-blueprint          # three — необязательная peer-зависимость, нужна только для `cad-blueprint/three`
+pnpm add cad-blueprint          # three is an optional peer dependency, needed only for `cad-blueprint/three`
 ```
 
-| Точка входа | Что внутри |
+| Entry point | Contents |
 |---|---|
-| `cad-blueprint` | всё ядро: настройки, таблицы, примитивы, размеры, блоки, документ, габариты, SVG, DXF, форматы |
-| `cad-blueprint/svg`, `/dxf`, `/format` | только рендерер / DXF / кодеки (для лёгких бандлов) |
-| `cad-blueprint/viewer` | `CadViewer` — просмотр с панорамированием и зумом (нужен DOM) |
-| `cad-blueprint/three` | контуры → `THREE.Shape` / `ExtrudeGeometry`, сечения мешей плоскостью |
-| `cad-blueprint/iife` | `dist/cad-blueprint.iife.js` для `<script>`: `window.CadBlueprint` (ядро + вьюпорт) |
+| `cad-blueprint` | the whole core: settings, tables, primitives, dimensions, blocks, document, bounds, SVG, DXF, formats |
+| `cad-blueprint/svg`, `/dxf`, `/format` | renderer / DXF / codecs only (for small bundles) |
+| `cad-blueprint/viewer` | `CadViewer` — pan & zoom viewer (requires DOM) |
+| `cad-blueprint/three` | contours → `THREE.Shape` / `ExtrudeGeometry`, plane sections of meshes |
+| `cad-blueprint/iife` | `dist/cad-blueprint.iife.js` for `<script>`: `window.CadBlueprint` (core + viewer) |
 
-## Быстрый старт
+## Quick start
 
 ```ts
 import { CadDocument, CadPath, polygon, insert, dimLinear, dimChain, leader, renderSvg, exportDxf, stringifyDocument } from 'cad-blueprint';
 
-const doc = new CadDocument({ gost: true, settings: { scale: '1:10' } }); // шрифт, текстовый и размерный стиль ГОСТ
-doc.layers.create('Контур', { color: '#0f172a', lineWeight: 0.5 });
-doc.layers.create('Размеры', { color: '#047857', lineWeight: 0.18 });
+const doc = new CadDocument({ gost: true, settings: { scale: '1:10' } }); // GOST font, text style and dimension style
+doc.layers.create('Outline', { color: '#0f172a', lineWeight: 0.5 });
+doc.layers.create('Dimensions', { color: '#047857', lineWeight: 0.18 });
 
 const tread = CadPath.start(0, 0).right(300).up(40).left(300).close().filletAll(5).build();
-doc.blocks.define('Ступень', [polygon(tread, { layer: 'Контур' })]);
+doc.blocks.define('Tread', [polygon(tread, { layer: 'Outline' })]);
 
-doc.addSheet('Лестница', [
-  ...[0, 1, 2, 3].map((i) => insert('Ступень', [i * 280, i * 170])),
-  dimLinear([0, 0], [1140, 0], { at: [0, -150], layer: 'Размеры' }),
-  dimChain([[0, 0], [280, 0], [560, 0], [840, 0]], { offset: -250, layer: 'Размеры' }),
-  leader([[150, 40], [250, 160]], 'Ступень 300×40', { layer: 'Размеры' }),
+doc.addSheet('Stairs', [
+  ...[0, 1, 2, 3].map((i) => insert('Tread', [i * 280, i * 170])),
+  dimLinear([0, 0], [1140, 0], { at: [0, -150], layer: 'Dimensions' }),
+  dimChain([[0, 0], [280, 0], [560, 0], [840, 0]], { offset: -250, layer: 'Dimensions' }),
+  leader([[150, 40], [250, 160]], 'Tread 300×40', { layer: 'Dimensions' }),
 ]);
 
-const svg = renderSvg(doc);                // <svg> c размерами в мм бумаги
-const dxf = exportDxf(doc);                // DXF R2007 (UTF-8); { version: 'R2000' } — для старых программ
-const json = stringifyDocument(doc);       // компактный JSON для БД
+const svg = renderSvg(doc);                // <svg> sized in paper millimetres
+const dxf = exportDxf(doc);                // DXF R2007 (UTF-8); { version: 'R2000' } for older software
+const json = stringifyDocument(doc);       // compact JSON for a database
 ```
 
-## Скрипты
+## Scripts
 
 ```bash
-pnpm typecheck   # строгая проверка: ядро без DOM + вьюпорт с DOM
-pnpm test        # vitest (вьюпорт — в happy-dom)
-pnpm build       # dist/: ESM + .d.ts по точкам входа и IIFE-сборка
-pnpm demo        # демо и страница документации (vite, demo/), сборка: pnpm demo:build → dist-demo/
+pnpm typecheck   # strict check: DOM-free core + DOM viewer
+pnpm test        # vitest (viewer runs in happy-dom)
+pnpm build       # dist/: ESM + .d.ts per entry point and an IIFE build
+pnpm demo        # demo and docs page (vite, demo/); build: pnpm demo:build → dist-demo/
 ```
 
-## Настройки чертежа
+## Drawing settings
 
 ```ts
 import { createDrawingSettings, createDrawingMetrics } from 'cad-blueprint';
 
 const settings = createDrawingSettings({
   units: 'mm',              // 'mm' | 'cm' | 'm' | 'inch'
-  precision: 3,             // знаков после запятой, 0…10
-  scale: '1:50',            // или { numerator: 1, denominator: 50 }
-  annotationScale: 'auto',  // 'auto' = как scale
-  coordinateSystem: 'cartesian', // Y вверх | 'screen' — Y вниз
-  padding: [10, 20],        // мм на бумаге: число | [верт, гор] | [t, r, b, l] | { left: 20 }
+  precision: 3,             // decimal places, 0…10
+  scale: '1:50',            // or { numerator: 1, denominator: 50 }
+  annotationScale: 'auto',  // 'auto' = same as scale
+  coordinateSystem: 'cartesian', // Y up | 'screen' — Y down
+  padding: [10, 20],        // paper mm: number | [vert, horiz] | [t, r, b, l] | { left: 20 }
 });
 
 const m = createDrawingMetrics(settings);
-m.modelToPaperMm(1000);     // 20   (1000 мм в модели → 20 мм на бумаге)
-m.annotationToModel(3.5);   // 175  (текст 3.5 мм на бумаге → размер в модели)
-m.paddingInModelUnits();    // поля в единицах модели
+m.modelToPaperMm(1000);     // 20   (1000 mm in the model → 20 mm on paper)
+m.annotationToModel(3.5);   // 175  (3.5 mm text on paper → model size)
+m.paddingInModelUnits();    // padding in model units
 m.toScreen([10, 20]);       // [10, -20]
 ```
 
-Настройки — иммутабельный JSON-совместимый объект; `updateDrawingSettings(s, patch)` возвращает новый,
-`parseDrawingSettings(json)` валидирует данные из БД. Ошибки — `CadSettingsError` с полем `field`.
+Settings are an immutable JSON-compatible object; `updateDrawingSettings(s, patch)` returns a new one,
+`parseDrawingSettings(json)` validates data loaded from a database. Errors are `CadSettingsError` with a `field` property.
 
-## Слои и штриховки
+## Layers and hatches
 
 ```ts
 import { LayerManager, createHatchStyle } from 'cad-blueprint';
 
-const layers = new LayerManager();            // слой "0" есть всегда
-layers.create('Стены', {
-  color: '#0f172a',                           // dxfColorIndex подберётся сам (или задайте вручную)
-  lineWeight: 0.5,                            // мм на бумаге
-  lineType: [12, 3, 2, 3],                    // пресет ('dashed', …) или свой паттерн, мм на бумаге
+const layers = new LayerManager();            // layer "0" always exists
+layers.create('Walls', {
+  color: '#0f172a',                           // dxfColorIndex is picked automatically (or set it yourself)
+  lineWeight: 0.5,                            // paper mm
+  lineType: [12, 3, 2, 3],                    // preset ('dashed', …) or a custom pattern, paper mm
   opacity: 0.9,
-  hatch: 'steel-45',                          // пресет, описание или готовый HatchStyle
+  hatch: 'steel-45',                          // preset, description or a ready HatchStyle
 });
-layers.clone('Стены', 'Стены-скрытые', { lineType: 'dashed' });
-layers.update('Стены', { locked: true });
-layers.isolate('Стены');                      // показать только этот слой
+layers.clone('Walls', 'Walls-hidden', { lineType: 'dashed' });
+layers.update('Walls', { locked: true });
+layers.isolate('Walls');                      // show only this layer
 layers.onChange((c) => console.log(c.type, c.layer.name));
 
-// кастомная штриховка: несколько семейств линий + фон
+// custom hatch: several line families + background
 const mesh = createHatchStyle({
   families: [{ angle: 45, spacing: 3 }, { angle: 135, spacing: 3, dash: [2, 1] }],
   background: '#f1f5f9',
 });
 ```
 
-Имена слоёв регистронезависимы, слой `"0"` нельзя удалить или переименовать, текущий слой удалить нельзя.
-Толщины, штрихи и шаг штриховки заданы в **мм на бумаге** и от масштаба чертежа не зависят.
-Состояние сохраняется через `JSON.stringify(layers)` и `LayerManager.fromJSON(...)`.
+Layer names are case-insensitive; layer `"0"` cannot be deleted or renamed, and the current layer cannot be deleted.
+Line weights, dashes and hatch spacing are in **paper millimetres** and do not depend on the drawing scale.
+State is saved with `JSON.stringify(layers)` and restored with `LayerManager.fromJSON(...)`.
 
-## Шрифты и текстовые стили
+## Fonts and text styles
 
 ```ts
 import {
@@ -136,37 +134,37 @@ import {
   measureTextInModel, placeText, projectTextOnAxis,
 } from 'cad-blueprint';
 
-const fonts = new FontManager();            // sans / serif / mono есть всегда
-const styles = new TextStyleTable(fonts);   // стиль "Standard" есть всегда
-registerGostTypeB(fonts, styles);           // шрифт 'gost-b' + стиль "GOST" (наклон 75° к строке, h = 3.5 мм)
+const fonts = new FontManager();            // sans / serif / mono always exist
+const styles = new TextStyleTable(fonts);   // style "Standard" always exists
+registerGostTypeB(fonts, styles);           // font 'gost-b' + style "GOST" (75° slant to the baseline, h = 3.5 mm)
 
-// свой шрифт: веб-файл / Google Fonts для SVG, файл AutoCAD для DXF, запасные шрифты
+// custom font: web file / Google Fonts for SVG, AutoCAD font file for DXF, fallbacks
 fonts.create('pt-sans', {
   family: 'PT Sans',
-  google: { weights: [400, 700] },          // или faces: [{ url: 'https://…/a.woff2', weight: 700 }]
+  google: { weights: [400, 700] },          // or faces: [{ url: 'https://…/a.woff2', weight: 700 }]
   dxf: { ttf: 'arial.ttf' },
-  fallbacks: ['sans'],                      // id из реестра или имя системного семейства
+  fallbacks: ['sans'],                      // registry id or a system family name
 });
 fonts.getCssFontFamily('pt-sans');          // '"PT Sans", "Arial", "Helvetica", sans-serif'
-fonts.buildFontFaceCss(['pt-sans']);        // @import / @font-face для <style> в SVG
-fonts.resolveDxfFont('gost-b');             // { ttf: 'isocpeur.ttf', … } для таблицы STYLE
+fonts.buildFontFaceCss(['pt-sans']);        // @import / @font-face for <style> in SVG
+fonts.resolveDxfFont('gost-b');             // { ttf: 'isocpeur.ttf', … } for the STYLE table
 
-styles.create('Размеры', { fontFamily: 'gost-b', height: 3.5, obliqueAngle: 15, lineHeight: 1.7 });
+styles.create('Dimensions', { fontFamily: 'gost-b', height: 3.5, obliqueAngle: 15, lineHeight: 1.7 });
 
-// габариты текста: высота из мм на бумаге → единицы модели по масштабу аннотаций
+// text extents: height in paper mm → model units via the annotation scale
 const drawing = createDrawingMetrics(createDrawingSettings({ scale: '1:50', annotationScale: '1:50' }));
-const layout = measureTextInModel('1250', styles.require('Размеры'), fonts, drawing, { anchor: 'middle-center' });
-layout.width;                                // ширина текста в единицах модели
+const layout = measureTextInModel('1250', styles.require('Dimensions'), fonts, drawing, { anchor: 'middle-center' });
+layout.width;                                // text width in model units
 const placed = placeText(layout, { position: [500, 120], rotationDeg: 0, padding: 20 });
-projectTextOnAxis(placed, 0).length;         // длина разрыва размерной линии под текстом
+projectTextOnAxis(placed, 0).length;         // length of the dimension line break under the text
 ```
 
-`TextStyle.height` — высота **прописных** букв в мм на бумаге (как в ГОСТ и AutoCAD).
-`obliqueAngle` отсчитывается **от вертикали** (как в AutoCAD / DXF): ГОСТ 75° к строке = `obliqueAngle: 15`
-(`obliqueFromBaselineSlant(75)`). Метрики встроенных шрифтов приблизительные (Latin из таблиц Helvetica / Times,
-кириллица и ГОСТ — оценка); для точного расчёта передайте метрики своего шрифта через `createFontMetrics`.
+`TextStyle.height` is the **cap height** in paper mm (as in GOST and AutoCAD).
+`obliqueAngle` is measured **from the vertical** (as in AutoCAD / DXF): GOST 75° to the baseline = `obliqueAngle: 15`
+(`obliqueFromBaselineSlant(75)`). Built-in font metrics are approximate (Latin from Helvetica / Times tables,
+Cyrillic and GOST are estimates); for exact layout pass your font's metrics via `createFontMetrics`.
 
-## Размерные стили
+## Dimension styles
 
 ```ts
 import {
@@ -177,184 +175,184 @@ import {
 
 const fonts = new FontManager();
 const textStyles = new TextStyleTable(fonts);
-const dims = new DimStyleTable(textStyles);        // стиль "Standard" есть всегда
-const gost = registerGostDimStyle(dims);            // шрифт gost-b + текстовый стиль GOST + размерный стиль GOST
+const dims = new DimStyleTable(textStyles);        // style "Standard" always exists
+const gost = registerGostDimStyle(dims);            // gost-b font + GOST text style + GOST dimension style
 
-// свой стиль: архитектурные засечки, текст в разрыве линии, горизонтальный
-dims.create('Архитектура', {
+// custom style: architectural ticks, text in a line break, horizontal
+dims.create('Architectural', {
   terminatorType: 'tick',            // 'arrow-closed' | 'arrow-open' | 'tick' ('oblique') | 'dot' | 'circle' | 'none'
-  terminatorSize: 2.5,               // мм на бумаге
-  dimLineOvershoot: 1.5,             // выход линии за выносные (только для tick)
-  extensionOffset: 2,                // зазор от объекта
-  extensionOvershoot: 2,             // выпуск за размерную линию
+  terminatorSize: 2.5,               // paper mm
+  dimLineOvershoot: 1.5,             // dimension line extension past extension lines (tick only)
+  extensionOffset: 2,                // gap from the object
+  extensionOvershoot: 2,             // extension past the dimension line
   hideSecondExtensionLine: false,
   textStyle: 'GOST',
   textPosition: 'centered',          // 'above' | 'centered' | 'outside'
   textOrientation: 'horizontal',     // 'aligned' | 'horizontal'
-  suffix: ' мм',
+  suffix: ' mm',
   decimals: 0,
 });
 
 const drawing = createDrawingMetrics(createDrawingSettings({ scale: '1:50', annotationScale: '1:50' }));
-const text = formatDimensionText(1250, gost);                          // '1250'; радиус: (…, 'radius') → 'R50', диаметр → 'Ø12', угол → '45°'
+const text = formatDimensionText(1250, gost);                          // '1250'; radius: (…, 'radius') → 'R50', diameter → 'Ø12', angle → '45°'
 const placed = layoutDimText(text, gost, textStyles, drawing, { lineAngleDeg: 0 });
-placed.rotationDeg; placed.anchor; placed.across;                     // поворот, опорная точка и смещение текста от линии
+placed.rotationDeg; placed.anchor; placed.across;                     // rotation, anchor and text offset from the line
 const m = resolveDimStyleMetrics(gost, drawing);
-m.terminatorSize; m.extensionOvershoot; m.baselineSpacing;            // длины стиля в единицах модели
-m.terminator.shapes;                                                  // рисунок окончания для SVG <marker> / DXF
+m.terminatorSize; m.extensionOvershoot; m.baselineSpacing;            // style lengths in model units
+m.terminator.shapes;                                                  // terminator shape for SVG <marker> / DXF
 ```
 
-Все длины стиля — **мм на бумаге**, в единицы модели они переводятся по масштабу аннотаций (`resolveDimStyleMetrics`).
-`layoutDimText` возвращает положение текста в системе размерной линии (вдоль / поперёк), поворот (текст не «вверх ногами»)
-и разрыв линии `lineBreak` для положения `centered`. Размерный стиль хранит *имя* текстового стиля; удалённые текстовые стили
-показывает `dims.missingTextStyles()`. Состояние сохраняется через `JSON.stringify(dims)` и `DimStyleTable.fromJSON(textStyles, …)`.
+All style lengths are **paper millimetres**, converted to model units via the annotation scale (`resolveDimStyleMetrics`).
+`layoutDimText` returns the text position in the dimension line frame (along / across), its rotation (text is never upside down)
+and the `lineBreak` for the `centered` position. A dimension style stores the *name* of its text style; deleted text styles
+are reported by `dims.missingTextStyles()`. State is saved with `JSON.stringify(dims)` and restored with `DimStyleTable.fromJSON(textStyles, …)`.
 
-## Построитель контуров
+## Path builder
 
 ```ts
 import { CadPath } from 'cad-blueprint';
 
-// «Черепашья» графика: один CadPath — один непрерывный контур из отрезков и дуг
-const step = CadPath.start(0, 0)           // начальная точка (по умолчанию 0, 0)
-  .right(280).up(170)                      // right / left / up / down, lineTo, lineBy, polar(длина, угол°)
-  .fillet(12)                              // скруглить угол между двумя последними сегментами
+// Turtle graphics: one CadPath is one continuous contour of lines and arcs
+const step = CadPath.start(0, 0)           // start point (default 0, 0)
+  .right(280).up(170)                      // right / left / up / down, lineTo, lineBy, polar(length, angle°)
+  .fillet(12)                              // round the corner between the last two segments
   .left(240).down(30).left(40)
-  .close()                                 // замкнуть (добавит недостающий сегмент)
-  .chamfer(8, 8, { vertex: 0 })            // фаска на начальной вершине: d1 по предыдущему, d2 по следующему сегменту
+  .close()                                 // close (adds the missing segment)
+  .chamfer(8, 8, { vertex: 0 })            // chamfer at the start vertex: d1 along the previous, d2 along the next segment
   .build();
 
-step.vertices;   // [[x, y, bulge?], …] — формат вершин Polyline (шаг 2.1.2); у замкнутого контура первая вершина не повторяется
-step.segments;   // те же сегменты явно: { type: 'line' | 'arc', from, to, center, radius, … }
-step.length;     // длина контура (периметр, если замкнут)
+step.vertices;   // [[x, y, bulge?], …] — Polyline vertex format (step 2.1.2); a closed contour does not repeat the first vertex
+step.segments;   // the same segments explicitly: { type: 'line' | 'arc', from, to, center, radius, … }
+step.length;     // contour length (perimeter if closed)
 
-// Дуги: по радиусу, bulge, центру, трём точкам или по касательной к предыдущему сегменту
+// Arcs: by radius, bulge, center, three points or tangent to the previous segment
 CadPath.start(0, 0).right(40)
-  .arcTo(80, 40, { tangent: true })                    // плавное продолжение
-  .arcBy(20, 0, { radius: 10, sweep: 'cw' })           // sweep: 'ccw' | 'cw', large: true — дуга больше полуокружности
-  .arcTo(150, 30, { through: [120, 50] });             // по трём точкам
+  .arcTo(80, 40, { tangent: true })                    // smooth continuation
+  .arcBy(20, 0, { radius: 10, sweep: 'cw' })           // sweep: 'ccw' | 'cw', large: true — arc larger than a semicircle
+  .arcTo(150, 30, { through: [120, 50] });             // through three points
 
-// Все углы сразу: прямоугольник со скруглёнными углами
+// All corners at once: a rounded rectangle
 CadPath.start(0, 0).right(100).up(60).left(100).close().filletAll(15).build();
 ```
 
-`fillet` / `chamfer` по умолчанию работают с углом между двумя последними сегментами (у замкнутого контура — с начальной вершиной);
-любой другой угол выбирается номером вершины `{ vertex }` (0 — начало, i — конец i-го сегмента). Сопряжения применяются при `build()`,
-поэтому номера вершин не сдвигаются. Сопряжения поддерживают только углы между двумя **прямыми** сегментами; `filletAll` / `chamferAll`
-стыки на одной прямой и стыки с дугами пропускают.
-В системе координат `screen` (Y вниз) `up` идёт к −Y, а `'ccw'` — против часовой стрелки на экране: `CadPath.start(0, 0, { coordinateSystem: 'screen' })`.
-Ошибки — `CadPathError` с полем `field`. Готовый контур можно снова превратить в `CadPath` через `CadPath.fromVertices(vertices, closed)`.
+By default `fillet` / `chamfer` work on the corner between the last two segments (for a closed contour, on the start vertex);
+any other corner is selected by vertex index `{ vertex }` (0 is the start, i is the end of the i-th segment). Fillets are applied at `build()`,
+so vertex indices do not shift. Fillets support only corners between two **straight** segments; `filletAll` / `chamferAll`
+skip collinear joints and joints with arcs.
+In the `screen` coordinate system (Y down) `up` goes towards −Y and `'ccw'` is counter-clockwise on screen: `CadPath.start(0, 0, { coordinateSystem: 'screen' })`.
+Errors are `CadPathError` with a `field` property. A finished contour can be turned back into a `CadPath` with `CadPath.fromVertices(vertices, closed)`.
 
-## Соглашения: оси и углы
+## Conventions: axes and angles
 
-- Координаты — в единицах модели (`settings.units`); толщины, штрихи, шаг штриховки, высота текста, длины размерного
-  стиля — **мм на бумаге** и пересчитываются по масштабу (`scale` / `annotationScale`).
-- Система `cartesian` — Y вверх (как DXF), `screen` — Y вниз (как SVG). SVG-рендерер и DXF-экспорт отражают ось сами.
-- **Углы геометрии — в числовой плоскости** (как в DXF): дуги, эллипсы, `angleDeg` размеров, `rotationDeg` вставок и
-  видовых экранов. В системе `screen` положительный угол на экране выглядит как поворот по часовой.
-- **Поворот текста — визуальный**: `rotationDeg: 90` — текст читается снизу вверх в обеих системах.
-- `null` в цвете / толщине / типе линии объекта — «по слою». Объекты блока на слое `"0"` рисуются на слое вставки.
+- Coordinates are in model units (`settings.units`); line weights, dashes, hatch spacing, text height and dimension style
+  lengths are **paper millimetres** and are scaled by `scale` / `annotationScale`.
+- `cartesian` is Y up (like DXF), `screen` is Y down (like SVG). The SVG renderer and DXF export flip the axis themselves.
+- **Geometry angles are in the numeric plane** (as in DXF): arcs, ellipses, dimension `angleDeg`, `rotationDeg` of inserts and
+  viewports. In the `screen` system a positive angle looks clockwise on screen.
+- **Text rotation is visual**: `rotationDeg: 90` reads bottom-to-top in both systems.
+- `null` colour / line weight / line type on an entity means "by layer". Block entities on layer `"0"` are drawn on the insert's layer.
 
-## Примитивы
+## Primitives
 
 ```ts
 import { CadPath, point, line, circle, arc, arcThrough, ellipse, rect, polyline, polygon, text, mtext, spline, bezier, breakLine, fitBezier } from 'cad-blueprint';
 
-line([0, 0], [100, 0], { layer: 'Контур', color: '#ff0000', lineWeight: 0.5, lineType: 'dashed', id: 'edge-1' });
-circle([50, 50], 10, { fill: 'hatch' });                       // fill: 'hatch' (штриховка слоя) | 'solid' | '#rrggbb'
-arc([0, 0], 20, 0, 90);                                         // по центру и углам (против часовой по умолчанию)
-arcThrough([10, 0], [0, 10], [-10, 0]);                         // по трём точкам
+line([0, 0], [100, 0], { layer: 'Outline', color: '#ff0000', lineWeight: 0.5, lineType: 'dashed', id: 'edge-1' });
+circle([50, 50], 10, { fill: 'hatch' });                       // fill: 'hatch' (layer hatch) | 'solid' | '#rrggbb'
+arc([0, 0], 20, 0, 90);                                         // by center and angles (counter-clockwise by default)
+arcThrough([10, 0], [0, 10], [-10, 0]);                         // through three points
 ellipse([0, 0], 40, 20, { rotationDeg: 30, startAngleDeg: 0, endAngleDeg: 180 });
 rect(0, 0, 300, 40, { cornerRadius: 5 });
 polygon(CadPath.start(0, 0).right(100).up(50).left(100).close().build(), { holes: [[[10, 10], [20, 10], [20, 20]]], fill: 'hatch' });
-text([0, 0], 'Однострочный', { style: 'GOST', height: 5, anchor: 'middle-center', rotationDeg: 90 });
-mtext([0, 0], 'Строка 1\nСтрока 2', { anchor: 'top-right' });  // 9 опорных точек
-spline([[0, 0], [10, 20], [20, -5], [30, 0]], { degree: 3 });   // B-сплайн 1…3, узлы по умолчанию — зажатые равномерные
-fitBezier([[0, 0], [10, 5], [20, -5]]);                         // гладкая кривая через точки
-breakLine([0, -50], [0, 50], { waves: 2 });                     // волнистая линия обрыва (ГОСТ 2.303)
+text([0, 0], 'Single line', { style: 'GOST', height: 5, anchor: 'middle-center', rotationDeg: 90 });
+mtext([0, 0], 'Line 1\nLine 2', { anchor: 'top-right' });      // 9 anchor points
+spline([[0, 0], [10, 20], [20, -5], [30, 0]], { degree: 3 });   // B-spline of degree 1…3, default knots are clamped uniform
+fitBezier([[0, 0], [10, 5], [20, -5]]);                         // smooth curve through points
+breakLine([0, -50], [0, 50], { waves: 2 });                     // wavy break line (GOST 2.303)
 ```
 
-Объекты неизменяемы и JSON-совместимы: `parseEntity(JSON.parse(JSON.stringify(e)))` вернёт тот же объект (с полной проверкой;
-неизвестное поле — ошибка). `transformPrimitive(e, matrix)` применяет аффинную матрицу (неравномерный масштаб превращает
-окружность в эллипс).
+Entities are immutable and JSON-compatible: `parseEntity(JSON.parse(JSON.stringify(e)))` returns the same entity (fully validated;
+an unknown field is an error). `transformPrimitive(e, matrix)` applies an affine matrix (non-uniform scale turns
+a circle into an ellipse).
 
-## Размеры и выноски
+## Dimensions and leaders
 
 ```ts
 import { dimLinear, dimAligned, dimChain, dimBaseline, dimAngular, dimRadius, dimDiameter, leader, buildDimensionGeometry } from 'cad-blueprint';
 
-dimLinear([0, 0], [1000, 0], { offset: -100 });                          // горизонтальный; direction: 'vertical' | угол
-dimLinear([0, 0], [0, 500], { direction: 'vertical', at: [-100, 0] });   // `at` — точка, через которую идёт размерная линия
-dimAligned([0, 0], [300, 400], { offset: 50 });                          // параллельно наклонной грани
-dimChain([[0, 0], [280, 0], [560, 0]], { offset: -200, texts: [null, '<> (2 шт.)'] });
-dimBaseline([0, 0], [[300, 0], [600, 0], [1000, 0]], { offset: -200 });  // этажерка с шагом baselineSpacing стиля
+dimLinear([0, 0], [1000, 0], { offset: -100 });                          // horizontal; direction: 'vertical' | angle
+dimLinear([0, 0], [0, 500], { direction: 'vertical', at: [-100, 0] });   // `at` — a point the dimension line passes through
+dimAligned([0, 0], [300, 400], { offset: 50 });                          // parallel to a sloped edge
+dimChain([[0, 0], [280, 0], [560, 0]], { offset: -200, texts: [null, '<> (2 pcs)'] });
+dimBaseline([0, 0], [[300, 0], [600, 0], [1000, 0]], { offset: -200 });  // stacked with the style's baselineSpacing
 dimAngular([0, 0], [100, 0], [0, 100], { radius: 60 });                  // 90°
 dimRadius([0, 0], 50, { angleDeg: 45 });                                 // R50
 dimDiameter([0, 0], 6, { angleDeg: 0 });                                 // Ø12
-leader([[0, 0], [40, 40]], 'Узел А', { shelfLength: 20 });               // выноска с полкой
+leader([[0, 0], [40, 40]], 'Detail A', { shelfLength: 20 });             // leader with a shelf
 
-const g = buildDimensionGeometry(dim, doc.context());                    // линии, окончания, тексты в координатах чертежа
+const g = buildDimensionGeometry(dim, doc.context());                    // lines, terminators, texts in drawing coordinates
 ```
 
-Стиль — имя из `DimStyleTable` (`style: null` — текущий). Если текст не помещается, он уходит за второе окончание; при
-малых размерах стрелки выносятся наружу. `text: '<> мм'` — свой текст, `<>` заменяется значением.
+The style is a name from `DimStyleTable` (`style: null` — the current one). If the text does not fit, it moves past the second terminator;
+for small dimensions the arrows are placed outside. `text: '<> mm'` — custom text, `<>` is replaced by the value.
 
-## Блоки, вставки и видовые экраны
+## Blocks, inserts and viewports
 
 ```ts
 import { insert, viewport } from 'cad-blueprint';
 
-doc.blocks.define('Ступень', entities, { basePoint: [150, 0] });         // циклические вставки запрещены
-insert('Ступень', [0, 170], { rotationDeg: 90, scaleX: -1, layer: 'Оси' }); // зеркало, поворот, слой вставки
+doc.blocks.define('Tread', entities, { basePoint: [150, 0] });            // cyclic inserts are forbidden
+insert('Tread', [0, 170], { rotationDeg: 90, scaleX: -1, layer: 'Axes' }); // mirror, rotation, insert layer
 
-// Несколько независимых видов на одном листе: свой масштаб, сдвиг, обрезка и подпись.
-viewport([insert('Ступень'), dimLinear([0, 0], [300, 0], { offset: -30 })], {
-  position: [0, -900], scale: '1:2', title: 'Узел А (1:2)', clip: { minX: -40, minY: -70, maxX: 400, maxY: 100 }, frame: true,
+// Several independent views on one sheet: own scale, offset, clipping and title.
+viewport([insert('Tread'), dimLinear([0, 0], [300, 0], { offset: -30 })], {
+  position: [0, -900], scale: '1:2', title: 'Detail A (1:2)', clip: { minX: -40, minY: -70, maxX: 400, maxY: 100 }, frame: true,
 });
 ```
 
-Внутри экрана тексты, стрелки и толщины считаются по его масштабу — на бумаге они того же размера, что и снаружи.
+Inside a viewport, text, arrows and line weights are computed by its own scale, so on paper they are the same size as outside.
 
-## Документ
+## Document
 
 ```ts
 const doc = new CadDocument({ gost: true, settings: { scale: '1:20', coordinateSystem: 'screen' } });
-const sheet = doc.addSheet('Фасад', entities);  // sheet.add(...), remove(id), replace(id, e), find(id), set([...])
-doc.audit();                                    // несуществующие слои, стили, блоки, шрифты
-doc.context();                                  // RenderContext для рендереров и габаритов
+const sheet = doc.addSheet('Facade', entities); // sheet.add(...), remove(id), replace(id, e), find(id), set([...])
+doc.audit();                                    // missing layers, styles, blocks, fonts
+doc.context();                                  // RenderContext for renderers and bounds
 ```
 
-## Форматы: компактный JSON и `.vcad`
+## Formats: compact JSON and `.vcad`
 
 ```ts
 import { stringifyDocument, decodeDocument, packVcad, unpackVcad, packBlockLibrary, unpackBlockLibrary } from 'cad-blueprint';
 
-const json = stringifyDocument(doc);            // tuple-JSON: в несколько раз меньше JSON.stringify(doc), координаты по precision
-const same = decodeDocument(json);              // полная проверка таблиц и объектов
+const json = stringifyDocument(doc);            // tuple-JSON: several times smaller than JSON.stringify(doc), coordinates rounded by precision
+const same = decodeDocument(json);              // full validation of tables and entities
 
 const bytes = packVcad(doc, { assets: { 'fonts/gost.woff2': fontBytes }, meta: { order: 42 } }); // ZIP
 const { document, blocks, assets, manifest } = unpackVcad(bytes);
-const library = unpackBlockLibrary(packBlockLibrary(doc.blocks)); // библиотека блоков без листов
+const library = unpackBlockLibrary(packBlockLibrary(doc.blocks)); // block library without sheets
 ```
 
-`.vcad`: `manifest.json`, `document.json` (компактный JSON без блоков), `blocks/0001.json` (по файлу на блок, слои — именами),
-`assets/…`. Распаковка ограничена 256 МБ и 10 000 файлами.
+`.vcad`: `manifest.json`, `document.json` (compact JSON without blocks), `blocks/0001.json` (one file per block, layers by name),
+`assets/…`. Unpacking is limited to 256 MB and 10,000 files.
 
-## Габариты
+## Bounds
 
 ```ts
 import { entitiesBounds, entityBounds, blockBounds } from 'cad-blueprint';
-entitiesBounds(sheet.entities, doc.context());  // дуги, эллипсы, сплайны — по экстремумам; текст — по метрикам; вставки и экраны — с матрицами
+entitiesBounds(sheet.entities, doc.context());  // arcs, ellipses, splines — by extrema; text — by metrics; inserts and viewports — with matrices
 ```
 
 ## SVG
 
 ```ts
 import { renderSvg, renderSvgResult } from 'cad-blueprint';
-renderSvg(doc, { sheet: 'Фасад', background: '#fff' });   // size: 'paper' (мм) | 'none' | { width }; padding; idPrefix
+renderSvg(doc, { sheet: 'Facade', background: '#fff' });  // size: 'paper' (mm) | 'none' | { width }; padding; idPrefix
 ```
 
-В `<defs>`: `<style>` (шрифты `@font-face` / Google Fonts, классы слоёв), `<marker>` окончаний, `<pattern>` штриховок,
-`<symbol>` блоков (`<use>` для вставок), `<clipPath>` экранов. `hiddenLayers: 'hide'` выводит скрытые слои с `display:none`.
+`<defs>` contains `<style>` (`@font-face` / Google Fonts, layer classes), terminator `<marker>`s, hatch `<pattern>`s,
+block `<symbol>`s (`<use>` for inserts) and viewport `<clipPath>`s. `hiddenLayers: 'hide'` outputs hidden layers with `display:none`.
 
 ## DXF
 
@@ -362,29 +360,29 @@ renderSvg(doc, { sheet: 'Фасад', background: '#fff' });   // size: 'paper' 
 import { exportDxf, importDxf, parseDxfToBlock } from 'cad-blueprint';
 
 exportDxf(doc);                        // R2007 / UTF-8: LAYER, LTYPE, STYLE, BLOCKS, ENTITIES, HATCH; { version: 'R2000' } — \U+XXXX
-const block = parseDxfToBlock(fileBytes, { name: 'Профиль 40×30', fill: 'hatch', basePoint: 'min' });
-const { block: b, layers, warnings } = importDxf(fileBytes, { units: 'mm', layer: 'Профиль' });
+const block = parseDxfToBlock(fileBytes, { name: 'Profile 40×30', fill: 'hatch', basePoint: 'min' });
+const { block: b, layers, warnings } = importDxf(fileBytes, { units: 'mm', layer: 'Profile' });
 ```
 
-Размеры записываются разложенными (LINE / ARC / SOLID / TEXT), видовые экраны — блоками `_VIEWPORT<n>`. Импорт: LINE, POINT,
-CIRCLE, ARC, ELLIPSE, LWPOLYLINE, POLYLINE (2D), SPLINE, SOLID, TEXT, MTEXT, INSERT (раскрывается); единицы по `$INSUNITS`,
-вложенные контуры одного слоя становятся вырезами.
+Dimensions are written exploded (LINE / ARC / SOLID / TEXT), viewports as `_VIEWPORT<n>` blocks. Import supports LINE, POINT,
+CIRCLE, ARC, ELLIPSE, LWPOLYLINE, POLYLINE (2D), SPLINE, SOLID, TEXT, MTEXT, INSERT (exploded); units come from `$INSUNITS`,
+nested contours on the same layer become holes.
 
-## Вьюпорт (`cad-blueprint/viewer`)
+## Viewer (`cad-blueprint/viewer`)
 
 ```ts
 import { CadViewer } from 'cad-blueprint/viewer';
 
-const viewer = new CadViewer(container, doc, { toolbar: true });  // источник: документ, компактный JSON (строка/объект) или .vcad
-viewer.fitToView(); viewer.zoomIn(); viewer.setLayerVisible('Оси', false); viewer.isolateLayer('Контур');
-viewer.on((e) => { if (e.type === 'select') console.log(e.id, e.point); });   // клик по объекту с id
+const viewer = new CadViewer(container, doc, { toolbar: true });  // source: document, compact JSON (string/object) or .vcad
+viewer.fitToView(); viewer.zoomIn(); viewer.setLayerVisible('Axes', false); viewer.isolateLayer('Outline');
+viewer.on((e) => { if (e.type === 'select') console.log(e.id, e.point); });   // click on an entity with an id
 viewer.downloadSvg('stairs'); viewer.downloadDxf('stairs');
-viewer.render({ keepView: true });   // после изменения документа
+viewer.render({ keepView: true });   // after the document changes
 ```
 
-Колесо — зум к курсору, перетаскивание — панорама, щипок — зум на сенсорных экранах, двойной клик — «вписать».
+Wheel zooms to the cursor, drag pans, pinch zooms on touch screens, double-click fits the drawing.
 
-### Filament 5 (Blade + Alpine.js, без сборщика)
+### Filament 5 (Blade + Alpine.js, no bundler)
 
 ```blade
 <div wire:ignore style="height: 480px"
@@ -396,8 +394,8 @@ viewer.render({ keepView: true });   // после изменения докум
 @endassets
 ```
 
-`drawing_json` — строка `stringifyDocument(doc)` из БД. Файл `dist/cad-blueprint.iife.js` скопируйте в `public/js`
-(или подключите через `FilamentAsset::register([Js::make('cad-blueprint', …)])`).
+`drawing_json` is the `stringifyDocument(doc)` string from the database. Copy `dist/cad-blueprint.iife.js` to `public/js`
+(or register it via `FilamentAsset::register([Js::make('cad-blueprint', …)])`).
 
 ## Three.js (`cad-blueprint/three`)
 
@@ -405,45 +403,45 @@ viewer.render({ keepView: true });   // после изменения докум
 import { blockToShapes, blockToExtrudeGeometry, sectionObject, sectionToBlock } from 'cad-blueprint/three';
 import { Mesh, Plane, Vector3 } from 'three';
 
-const geometry = blockToExtrudeGeometry(profileBlock, { depth: 2000 });      // вырезы → shape.holes, дуги — absarc
-const section = sectionObject(scene, new Plane(new Vector3(1, 0, 0), -500)); // сечение мешей плоскостью
-doc.blocks.add(sectionToBlock(section, 'Разрез А-А', { layer: 'Сечение' }));  // замкнутые контуры с вырезами и штриховкой
+const geometry = blockToExtrudeGeometry(profileBlock, { depth: 2000 });      // holes → shape.holes, arcs → absarc
+const section = sectionObject(scene, new Plane(new Vector3(1, 0, 0), -500)); // plane section of meshes
+doc.blocks.add(sectionToBlock(section, 'Section A-A', { layer: 'Section' })); // closed contours with holes and hatch
 ```
 
-## Сборка и публикация
+## Build and publish
 
 ```bash
 pnpm build                 # tsup → dist/*.js, dist/*.d.ts, dist/cad-blueprint.iife.js
-npm login                  # аккаунт maxim.tsatsura
+npm login                  # account maxim.tsatsura
 pnpm publish --access public
 ```
 
-В репозитории `exports` указывают на исходники (`src/*.ts`) — так пакет работает в workspace без сборки. При публикации
-pnpm подменяет их на `publishConfig.exports` (`dist/`); публиковать нужно через `pnpm publish`, а не `npm publish`.
+In the repository `exports` point to the sources (`src/*.ts`), so the package works in a workspace without a build. On publish
+pnpm replaces them with `publishConfig.exports` (`dist/`); publish with `pnpm publish`, not `npm publish`.
 
-## Структура
+## Structure
 
 ```
 src/
-  index.ts            публичный API (ядро)
-  settings/           1.1  настройки чертежа
-  layers/             1.2  слои, типы линий, штриховки
-  typography/         1.3  шрифты, текстовые стили, габариты текста
-  dim-styles/         1.4  размерные стили
-  geometry/           2.1  векторы, матрицы, габариты кривых, вложенность контуров
-  primitives/         2.1  Point … Spline, Text / MText, преобразования
+  index.ts            public API (core)
+  settings/           1.1  drawing settings
+  layers/             1.2  layers, line types, hatches
+  typography/         1.3  fonts, text styles, text extents
+  dim-styles/         1.4  dimension styles
+  geometry/           2.1  vectors, matrices, curve bounds, contour nesting
+  primitives/         2.1  Point … Spline, Text / MText, transforms
   path-builder/       2.2  CadPath
-  dimensions/         3.1  размеры и выноски
-  blocks/             3.2  блоки, вставки, видовые экраны
-  entities/                объединение типов объектов, parseEntity
-  document/                CadDocument, листы, RenderContext
-  render/                  обход объектов с раскрытием блоков
-  format/             4    компактный JSON, .vcad
-  bounds/             5.1  габариты
-  svg/                5.2  SVG-рендерер
-  dxf/                5.3  DXF: экспорт и импорт
+  dimensions/         3.1  dimensions and leaders
+  blocks/             3.2  blocks, inserts, viewports
+  entities/                entity type union, parseEntity
+  document/                CadDocument, sheets, RenderContext
+  render/                  entity traversal with block expansion
+  format/             4    compact JSON, .vcad
+  bounds/             5.1  bounds
+  svg/                5.2  SVG renderer
+  dxf/                5.3  DXF export and import
   viewer/             5.4  CadViewer (DOM)
-  three/              6.1  мост к Three.js
+  three/              6.1  Three.js bridge
 tests/
-docs/reports/         отчёты по этапам
+docs/reports/         stage reports
 ```
