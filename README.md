@@ -1,9 +1,31 @@
 # cad-blueprint
 
+[![npm](https://img.shields.io/npm/v/cad-blueprint)](https://www.npmjs.com/package/cad-blueprint)
+[![license](https://img.shields.io/npm/l/cad-blueprint)](./LICENSE)
+[![demo](https://img.shields.io/badge/demo-online-047857)](https://maks-t.github.io/cad-blueprint/)
+
+**[Демо](https://maks-t.github.io/cad-blueprint/)** · **[Документация](https://maks-t.github.io/cad-blueprint/docs.html)** · **[npm](https://www.npmjs.com/package/cad-blueprint)**
+
+> Lightweight parametric 2D CAD engine for TypeScript: layers, text and dimension styles, primitives, dimensions,
+> blocks, viewports, SVG and DXF export, DXF import, interactive viewer and Three.js bridge.
+> Works in the browser, Node and web workers. [Live demo →](https://maks-t.github.io/cad-blueprint/)
+
 Лёгкий параметрический 2D CAD-движок для конфигураторов: слои и штриховки, шрифты и текстовые стили (в т. ч. ГОСТ тип Б),
 размерные стили, примитивы, размеры и выноски, блоки и видовые экраны, компактный JSON и контейнер `.vcad`, точные габариты,
 экспорт в SVG и DXF, импорт DXF, интерактивный просмотр (в т. ч. для Filament) и мост к Three.js.
 Ядро не зависит от DOM и работает в браузере, Node и воркерах.
+
+## Демо
+
+**https://maks-t.github.io/cad-blueprint/** — интерактивный пример на этой библиотеке:
+
+- параметрический чертёж: ширина, глубина, радиус скругления, глубина Z-сечения;
+- размерные стили (засечки, стрелки, засечки 45° по ГОСТ) и положение текста размера;
+- масштабы от 1:1 до 1:20, слои, зум, панорамирование, выделение объектов;
+- импорт DXF / SVG / `.vcad`, экспорт в JSON, компактный JSON и `.vcad`;
+- 3D-вид на Three.js с подвижной секущей плоскостью.
+
+Исходники демо — в [`demo/`](./demo), локальный запуск — `pnpm demo`, публикация на GitHub Pages — `pnpm demo:deploy`.
 
 ## Установка
 
