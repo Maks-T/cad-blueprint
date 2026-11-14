@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect x=%221%22 y=%221%22 width=%2214%22 height=%2214%22 rx=%223%22 fill=%22%2318181b%22/%3E%3Cpath d=%22M4 11h8M4 11V5%22 stroke=%22%23fff%22 stroke-width=%221.5%22/%3E%3C/svg%3E" />
-    <title>cad-blueprint · демо</title>
+    <title>cad-blueprint · demo</title>
     <style>
       :root {
         --bg: #f4f4f5;
@@ -106,62 +106,72 @@
         main { grid-template-columns: 1fr; }
         .center { height: 70vh; }
       }
+      .lang-switch { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+      .lang-btn { border: 0; border-radius: 0; height: 28px; padding: 0 8px; font-weight: 500; color: var(--muted); }
+      .lang-btn + .lang-btn { border-left: 1px solid var(--border); }
+      .lang-btn.active { background: var(--primary); color: #fff; }
+      .lang-btn.active:hover { background: #27272a; }
     </style>
   </head>
   <body>
     <header>
-      <div class="brand">cad-blueprint <small>v0.2 · демо</small><a href="./docs.html">Документация →</a></div>
+      <div class="brand">cad-blueprint <small id="brand-meta">v0.3 · demo</small><a id="docs-link" href="./docs.html">Documentation →</a></div>
       <div class="actions">
-        <button id="btn-fit" title="Вписать в окно">⤢</button>
-        <button id="btn-zoom-out" title="Отдалить">−</button>
+        <button id="btn-fit" title="Fit to view">⤢</button>
+        <button id="btn-zoom-out" title="Zoom out">−</button>
         <span id="zoom-label">100%</span>
-        <button id="btn-zoom-in" title="Приблизить">+</button>
+        <button id="btn-zoom-in" title="Zoom in">+</button>
         <span class="sep"></span>
-        <label class="file-btn" title="Открыть DXF как новый лист">Импорт DXF<input id="input-dxf" type="file" accept=".dxf" /></label>
+        <label id="lbl-import-dxf-btn" class="file-btn" title="Open DXF as a new sheet"><span id="lbl-import-dxf">Import DXF</span><input id="input-dxf" type="file" accept=".dxf" /></label>
         <span class="sep"></span>
         <button id="btn-svg">SVG</button>
         <button id="btn-dxf" class="primary">DXF</button>
-        <button id="btn-dxf-2000" title="DXF R2000 для старых программ">DXF R2000</button>
-        <button id="btn-vcad" title="Весь документ: JSON + манифест в zip">.vcad</button>
+        <button id="btn-dxf-2000" title="DXF R2000 for legacy CAD software">DXF R2000</button>
+        <button id="btn-vcad" title="Full document: JSON + manifest in zip">.vcad</button>
+        <span class="sep"></span>
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button id="btn-lang-en" type="button" class="lang-btn active" title="English">EN</button>
+          <button id="btn-lang-ru" type="button" class="lang-btn" title="Русский">RU</button>
+        </div>
       </div>
     </header>
     <nav id="sheet-tabs"></nav>
     <main>
       <aside>
         <section class="card">
-          <h3>Слои <button id="btn-show-all-layers" class="link-btn">показать все</button></h3>
+          <h3><span id="lbl-layers">Layers</span> <button id="btn-show-all-layers" class="link-btn">show all</button></h3>
           <div id="layer-list"></div>
         </section>
         <section class="card">
-          <h3>Стиль размеров</h3>
+          <h3 id="lbl-dim-style">Dimension style</h3>
           <div class="field">
-            <label for="sel-terminator">Засечки</label>
+            <label id="lbl-terminator" for="sel-terminator">Terminators</label>
             <select id="sel-terminator">
-              <option value="arrow-closed">Стрелка (закрытая)</option>
-              <option value="arrow-open">Стрелка (открытая)</option>
-              <option value="tick">Засечка 45° (ГОСТ)</option>
-              <option value="dot">Точка</option>
-              <option value="circle">Кружок</option>
-              <option value="none">Нет</option>
+              <option value="arrow-closed">Arrow (closed)</option>
+              <option value="arrow-open">Arrow (open)</option>
+              <option value="tick">Tick 45° (GOST)</option>
+              <option value="dot">Dot</option>
+              <option value="circle">Circle</option>
+              <option value="none">None</option>
             </select>
           </div>
           <div class="field">
-            <label for="sel-text-pos">Положение текста</label>
+            <label id="lbl-text-pos" for="sel-text-pos">Text position</label>
             <select id="sel-text-pos">
-              <option value="above">Над линией</option>
-              <option value="centered">В разрыве линии</option>
-              <option value="outside">Снаружи</option>
+              <option value="above">Above line</option>
+              <option value="centered">Centered (break line)</option>
+              <option value="outside">Outside</option>
             </select>
           </div>
           <div class="field">
-            <label for="sel-text-orient">Ориентация текста</label>
+            <label id="lbl-text-orient" for="sel-text-orient">Text orientation</label>
             <select id="sel-text-orient">
-              <option value="aligned">Вдоль линии</option>
-              <option value="horizontal">Горизонтально</option>
+              <option value="aligned">Aligned with line</option>
+              <option value="horizontal">Horizontal</option>
             </select>
           </div>
           <div class="field">
-            <label for="sel-scale">Масштаб чертежа</label>
+            <label id="lbl-scale" for="sel-scale">Drawing scale</label>
             <select id="sel-scale">
               <option value="1:1">1:1</option>
               <option value="1:2">1:2</option>
@@ -172,21 +182,21 @@
           </div>
         </section>
         <section class="card">
-          <h3>Параметрика</h3>
+          <h3 id="lbl-parametric">Parametric</h3>
           <div class="field">
-            <label for="rng-w">Ширина <b><span id="rng-w-val">1200</span> мм</b></label>
+            <label for="rng-w"><span id="lbl-w">Width</span> <b><span id="rng-w-val">1200</span> <span class="unit-mm">mm</span></b></label>
             <input id="rng-w" type="range" min="500" max="2400" step="10" value="1200" />
           </div>
           <div class="field">
-            <label for="rng-h">Глубина <b><span id="rng-h-val">600</span> мм</b></label>
+            <label for="rng-h"><span id="lbl-h">Depth</span> <b><span id="rng-h-val">600</span> <span class="unit-mm">mm</span></b></label>
             <input id="rng-h" type="range" min="300" max="1200" step="10" value="600" />
           </div>
           <div class="field">
-            <label for="rng-r">Радиус углов <b><span id="rng-r-val">40</span> мм</b></label>
+            <label for="rng-r"><span id="lbl-r">Corner radius</span> <b><span id="rng-r-val">40</span> <span class="unit-mm">mm</span></b></label>
             <input id="rng-r" type="range" min="0" max="140" step="1" value="40" />
           </div>
           <div class="field">
-            <label for="rng-cut">Разрез по Z <b><span id="rng-cut-val">180</span> мм</b></label>
+            <label for="rng-cut"><span id="lbl-cut">Section Z</span> <b><span id="rng-cut-val">180</span> <span class="unit-mm">mm</span></b></label>
             <input id="rng-cut" type="range" min="0" max="400" step="1" value="180" />
           </div>
         </section>
@@ -195,28 +205,28 @@
       <div class="center">
         <div id="viewer-host"></div>
         <div class="statusbar">
-          <span id="status-select">Колесо — зум, перетаскивание — панорама, двойной клик — вписать, клик — выбор объекта</span>
+          <span id="status-select">Wheel — zoom, drag — pan, double-click — fit, click — select entity</span>
           <span id="status-audit"></span>
         </div>
       </div>
 
       <aside>
         <section class="card">
-          <h3>3D и сечение</h3>
+          <h3 id="lbl-three">3D &amp; section</h3>
           <div id="three-preview"></div>
-          <p class="hint">Тяни <b>красную плоскость</b> мышью, чтобы двигать разрез. Остальное вращает камеру, колесо — зум.</p>
+          <p id="lbl-three-hint" class="hint">Drag the <b>red plane</b> to move the section. Orbit with drag, zoom with wheel.</p>
         </section>
         <section class="card">
-          <h3>Размер документа</h3>
+          <h3 id="lbl-doc-size">Document size</h3>
           <div class="stats">
-            <span>JSON (подробный)</span><span id="size-verbose">—</span>
-            <span>Компактный JSON</span><span id="size-compact">—</span>
+            <span id="lbl-size-verbose">JSON (verbose)</span><span id="size-verbose">—</span>
+            <span id="lbl-size-compact">Compact JSON</span><span id="size-compact">—</span>
             <span>.vcad (zip)</span><span id="size-vcad">—</span>
             <span id="size-ratio"></span>
           </div>
         </section>
         <section class="card">
-          <h3>Компактный JSON листа</h3>
+          <h3 id="lbl-json-preview">Sheet compact JSON</h3>
           <pre id="json-preview"></pre>
         </section>
       </aside>

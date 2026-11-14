@@ -10,6 +10,7 @@ import {
 import { sectionObject } from '../src/three';
 import { CadViewer } from '../src/viewer';
 import { PROFILE_DEPTH, buildDemo3DScene, buildShowcaseDocument, cutPlane, type DemoParams } from './demo-document';
+import { DEMO_STRINGS, detectInitialLang, saveLang, type DemoLang } from './i18n';
 import { ThreePreview } from './three-preview';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string): T => {
@@ -18,7 +19,10 @@ const $ = <T extends HTMLElement = HTMLElement>(id: string): T => {
   return el as T;
 };
 
+let lang: DemoLang = detectInitialLang();
+
 const params: DemoParams = {
+  lang,
   terminatorType: 'arrow-closed',
   textPosition: 'above',
   textOrientation: 'aligned',
@@ -88,8 +92,8 @@ function renderLayers(): void {
     const iso = document.createElement('button');
     iso.type = 'button';
     iso.className = 'link-btn';
-    iso.textContent = 'только';
-    iso.title = 'Показать только этот слой';
+    iso.textContent = DEMO_STRINGS[lang].isolateLayer;
+    iso.title = DEMO_STRINGS[lang].isolateLayerTitle;
     iso.addEventListener('click', (e) => {
       e.preventDefault();
       viewer.isolateLayer(l.name);
@@ -107,7 +111,10 @@ $('btn-show-all-layers').addEventListener('click', () => {
 
 // ── Форматы ──────────────────────────────────────────────────────────────────
 const bytes = (s: string): number => new TextEncoder().encode(s).length;
-const fmtSize = (n: number): string => (n < 1024 ? `${n} Б` : `${(n / 1024).toFixed(1)} КБ`);
+const fmtSize = (n: number): string => {
+  const t = DEMO_STRINGS[lang];
+  return n < 1024 ? `${n} ${t.bytesUnit}` : `${(n / 1024).toFixed(1)} ${t.kbUnit}`;
+};
 
 function updateStats(): void {
   const doc = viewer.document;
@@ -116,13 +123,13 @@ function updateStats(): void {
   $('size-verbose').textContent = fmtSize(verbose);
   $('size-compact').textContent = fmtSize(bytes(compact));
   $('size-vcad').textContent = fmtSize(packVcad(doc).byteLength);
-  $('size-ratio').textContent = `в ${(verbose / bytes(compact)).toFixed(1)} раза меньше`;
+  $('size-ratio').textContent = DEMO_STRINGS[lang].sizeRatio((verbose / bytes(compact)).toFixed(1));
   const sheet = encodeDocument(doc).sh.find((s) => Array.isArray(s) && s[0] === viewer.sheet);
   const preview = JSON.stringify(sheet ?? []);
   $('json-preview').textContent = preview.length > 1500 ? `${preview.slice(0, 1500)}…` : preview;
   const issues = doc.audit();
   const audit = $('status-audit');
-  audit.textContent = issues.length === 0 ? 'audit: без замечаний' : `audit: ${issues.length} замеч.`;
+  audit.textContent = issues.length === 0 ? DEMO_STRINGS[lang].auditOk : DEMO_STRINGS[lang].auditIssues(issues.length);
   audit.title = issues.map((i) => `${i.path}: ${i.message}`).join('\n');
 }
 
@@ -217,12 +224,9 @@ fileInput.addEventListener('change', async () => {
     viewer.setDocument(makeDocument());
     showSheet(sheetId);
     updateStats();
-    setStatus(
-      `Импортировано: ${result.block.entities.length} объектов, единицы файла: ${result.fileUnits ?? 'не заданы'}` +
-        (result.warnings.length ? ` · пропущено: ${result.warnings.join('; ')}` : ''),
-    );
+    setStatus(DEMO_STRINGS[lang].importSuccess(result.block.entities.length, result.fileUnits, result.warnings));
   } catch (err) {
-    setStatus(`Не удалось прочитать DXF: ${(err as Error).message}`, true);
+    setStatus(DEMO_STRINGS[lang].importError((err as Error).message), true);
   }
 });
 
@@ -238,7 +242,7 @@ viewer.on((ev) => {
   } else if (ev.type === 'select') {
     const [x, y] = ev.point;
     const at = `(${x.toFixed(1)}; ${y.toFixed(1)})`;
-    setStatus(ev.id ? `Объект id="${ev.id}", слой «${ev.layer}», точка ${at}` : `Точка модели ${at}${ev.layer ? `, слой «${ev.layer}»` : ''}`);
+    setStatus(ev.id ? DEMO_STRINGS[lang].selectEntity(ev.id, ev.layer, at) : DEMO_STRINGS[lang].selectPoint(at, ev.layer));
   }
 });
 
@@ -261,9 +265,73 @@ try {
   });
   preview.setContour(sectionObject(scene3d, cutPlane(params.cutZ)));
 } catch (err) {
-  $('three-preview').textContent = `WebGL недоступен: ${(err as Error).message}`;
+  $('three-preview').textContent = DEMO_STRINGS[lang].webglError((err as Error).message);
 }
 
+function setSelectOptions(id: string, labels: Record<string, string>): void {
+  const sel = $<HTMLSelectElement>(id);
+  for (const opt of sel.options) {
+    const label = labels[opt.value];
+    if (label !== undefined) opt.textContent = label;
+  }
+}
+
+function applyUiLanguage(): void {
+  const t = DEMO_STRINGS[lang];
+  document.documentElement.lang = lang;
+  document.title = t.pageTitle;
+  $('brand-meta').textContent = t.brandMeta;
+  const docs = $<HTMLAnchorElement>('docs-link');
+  docs.textContent = t.docsLink;
+  docs.href = lang === 'en' ? './docs.html' : './docs.html?lang=ru';
+  $('btn-fit').title = t.fitTitle;
+  $('btn-zoom-out').title = t.zoomOutTitle;
+  $('btn-zoom-in').title = t.zoomInTitle;
+  $('lbl-import-dxf').textContent = t.importDxf;
+  $('lbl-import-dxf-btn').title = t.importDxfTitle;
+  $('btn-dxf-2000').title = t.dxf2000Title;
+  $('btn-vcad').title = t.vcadTitle;
+  $('btn-lang-en').classList.toggle('active', lang === 'en');
+  $('btn-lang-ru').classList.toggle('active', lang === 'ru');
+  $('lbl-layers').textContent = t.layersHeading;
+  $('btn-show-all-layers').textContent = t.showAllLayers;
+  $('lbl-dim-style').textContent = t.dimStyleHeading;
+  $('lbl-terminator').textContent = t.terminatorLabel;
+  setSelectOptions('sel-terminator', t.terminators);
+  $('lbl-text-pos').textContent = t.textPosLabel;
+  setSelectOptions('sel-text-pos', t.textPositions);
+  $('lbl-text-orient').textContent = t.textOrientLabel;
+  setSelectOptions('sel-text-orient', t.textOrientations);
+  $('lbl-scale').textContent = t.scaleLabel;
+  $('lbl-parametric').textContent = t.parametricHeading;
+  $('lbl-w').textContent = t.widthLabel;
+  $('lbl-h').textContent = t.depthLabel;
+  $('lbl-r').textContent = t.cornerRadiusLabel;
+  $('lbl-cut').textContent = t.cutZLabel;
+  for (const el of document.querySelectorAll('.unit-mm')) el.textContent = t.mmUnit;
+  setStatus(t.statusDefault);
+  $('lbl-three').textContent = t.threeHeading;
+  $('lbl-three-hint').innerHTML = t.threeHintHtml;
+  $('lbl-doc-size').textContent = t.docSizeHeading;
+  $('lbl-size-verbose').textContent = t.sizeVerboseLabel;
+  $('lbl-size-compact').textContent = t.sizeCompactLabel;
+  $('lbl-size-vcad').textContent = t.sizeVcadLabel;
+  $('lbl-json-preview').textContent = t.jsonPreviewHeading;
+}
+
+function setLanguage(next: DemoLang): void {
+  if (lang === next) return;
+  lang = next;
+  params.lang = next;
+  saveLang(next);
+  applyUiLanguage();
+  rebuild(true);
+}
+
+$('btn-lang-en').addEventListener('click', () => setLanguage('en'));
+$('btn-lang-ru').addEventListener('click', () => setLanguage('ru'));
+
+applyUiLanguage();
 renderTabs();
 renderLayers();
 updateStats();
